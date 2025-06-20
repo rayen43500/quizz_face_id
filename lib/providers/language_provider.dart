@@ -34,6 +34,14 @@ class LanguageProvider with ChangeNotifier {
       'Who is the author of': 'Qui est l\'auteur de',
       'What is the most abundant': 'Quel est le plus abondant',
       'What is the highest': 'Quelle est la plus haute',
+      'What is': 'Qu\'est-ce que',
+      'Which of these': 'Laquelle de ces',
+      'In which year': 'En quelle année',
+      'Which country': 'Quel pays',
+      'What was the': 'Quel était le',
+      'What does': 'Que signifie',
+      'Where is': 'Où se trouve',
+      'Who was': 'Qui était',
       
       // Réponses communes
       'True': 'Vrai',
@@ -44,6 +52,14 @@ class LanguageProvider with ChangeNotifier {
       'None of the above': 'Aucune des réponses ci-dessus',
       'I don\'t know': 'Je ne sais pas',
       'Maybe': 'Peut-être',
+      'Both A and B': 'À la fois A et B',
+      'Neither A nor B': 'Ni A ni B',
+      'A and C': 'A et C',
+      'B and D': 'B et D',
+      'All of these': 'Tous ces éléments',
+      'None of these': 'Aucun de ces éléments',
+      'Correct': 'Correct',
+      'Incorrect': 'Incorrect',
       
       // Pays et lieux
       'France': 'France',
@@ -67,6 +83,24 @@ class LanguageProvider with ChangeNotifier {
       'The Amazon': 'L\'Amazone',
       'The Mississippi': 'Le Mississippi',
       'The Yangtze': 'Le Yangtsé',
+      'Paris': 'Paris',
+      'Rome': 'Rome',
+      'New York': 'New York',
+      'Tokyo': 'Tokyo',
+      'Cairo': 'Le Caire',
+      'Sydney': 'Sydney',
+      'Moscow': 'Moscou',
+      'Brazil': 'Brésil',
+      'Germany': 'Allemagne',
+      'Italy': 'Italie',
+      'Spain': 'Espagne',
+      'United Kingdom': 'Royaume-Uni',
+      'Australia': 'Australie',
+      'India': 'Inde',
+      'Mexico': 'Mexique',
+      'Egypt': 'Égypte',
+      'South Africa': 'Afrique du Sud',
+      'Argentina': 'Argentine',
       
       // Personnes
       'Leonardo da Vinci': 'Léonard de Vinci',
@@ -87,6 +121,16 @@ class LanguageProvider with ChangeNotifier {
       'Tolkien': 'Tolkien',
       'Claude Monet': 'Claude Monet',
       'Salvador Dalí': 'Salvador Dalí',
+      'William Shakespeare': 'William Shakespeare',
+      'Isaac Newton': 'Isaac Newton',
+      'Charles Darwin': 'Charles Darwin',
+      'Galileo Galilei': 'Galilée',
+      'Napoleon Bonaparte': 'Napoléon Bonaparte',
+      'Julius Caesar': 'Jules César',
+      'Alexander the Great': 'Alexandre le Grand',
+      'Mozart': 'Mozart',
+      'Beethoven': 'Beethoven',
+      'Bach': 'Bach',
       
       // Éléments et sciences
       'Mercury': 'Mercure',
@@ -101,18 +145,49 @@ class LanguageProvider with ChangeNotifier {
       'Oxygen': 'Oxygène',
       'Carbon': 'Carbone',
       'Iron': 'Fer',
+      'Gold': 'Or',
+      'Silver': 'Argent',
+      'Copper': 'Cuivre',
+      'Helium': 'Hélium',
+      'Nitrogen': 'Azote',
+      'Calcium': 'Calcium',
+      'Sodium': 'Sodium',
+      'Potassium': 'Potassium',
+      'Zinc': 'Zinc',
+      'Magnesium': 'Magnésium',
+      'Physics': 'Physique',
+      'Chemistry': 'Chimie',
+      'Biology': 'Biologie',
+      'Astronomy': 'Astronomie',
+      'Mathematics': 'Mathématiques',
+      'Geology': 'Géologie',
       
       // Œuvres
       'Mona Lisa': 'La Joconde',
       'Les Misérables': 'Les Misérables',
       'Harry Potter': 'Harry Potter',
       'The Starry Night': 'La Nuit étoilée',
+      'The Last Supper': 'La Cène',
+      'War and Peace': 'Guerre et Paix',
+      'The Great Gatsby': 'Gatsby le Magnifique',
+      'Don Quixote': 'Don Quichotte',
+      'The Bible': 'La Bible',
+      'The Odyssey': 'L\'Odyssée',
+      'Romeo and Juliet': 'Roméo et Juliette',
+      'Hamlet': 'Hamlet',
+      'Macbeth': 'Macbeth',
       
       // Monnaies et économie
       'Yen': 'Yen',
       'Won': 'Won',
       'Yuan': 'Yuan',
       'Dollar': 'Dollar',
+      'Euro': 'Euro',
+      'Pound': 'Livre',
+      'Rupee': 'Roupie',
+      'Peso': 'Peso',
+      'Franc': 'Franc',
+      'Ruble': 'Rouble',
       
       // Catégories
       'Geography': 'Géographie',
@@ -161,6 +236,17 @@ class LanguageProvider with ChangeNotifier {
       'Reload': 'Recharger',
       'Problem displaying question': 'Problème d\'affichage de la question',
       'Recharger': 'Recharger',
+      'back': 'Retour',
+      'next': 'Suivant',
+      'question': 'Question',
+      'time_left': 'Temps restant',
+      'seconds': 'secondes',
+      'reload': 'Recharger',
+      'problem_displaying_question': 'Problème d\'affichage de la question',
+      'quit_quiz': 'Quitter le Quiz',
+      'quit_confirmation': 'Êtes-vous sûr de vouloir quitter? Votre progression sera perdue.',
+      'cancel': 'Annuler',
+      'quit': 'Quitter',
     },
     'ar': {
       // Questions générales
@@ -178,6 +264,16 @@ class LanguageProvider with ChangeNotifier {
       'What is the longest': 'ما هو أطول',
       'What is the currency of': 'ما هي عملة',
       'Who is the author of': 'من هو مؤلف',
+      'What is the most abundant': 'ما هو الأكثر وفرة',
+      'What is the highest': 'ما هو الأعلى',
+      'What is': 'ما هو',
+      'Which of these': 'أي من هذه',
+      'In which year': 'في أي سنة',
+      'Which country': 'أي بلد',
+      'What was the': 'ما كان',
+      'What does': 'ماذا يعني',
+      'Where is': 'أين يقع',
+      'Who was': 'من كان',
       
       // Réponses communes
       'True': 'صحيح',
@@ -188,6 +284,14 @@ class LanguageProvider with ChangeNotifier {
       'None of the above': 'لا شيء مما سبق',
       'I don\'t know': 'لا أعرف',
       'Maybe': 'ربما',
+      'Both A and B': 'كل من أ و ب',
+      'Neither A nor B': 'لا أ ولا ب',
+      'A and C': 'أ و ج',
+      'B and D': 'ب و د',
+      'All of these': 'كل هذه',
+      'None of these': 'لا شيء من هذه',
+      'Correct': 'صحيح',
+      'Incorrect': 'خطأ',
       
       // Pays et lieux
       'France': 'فرنسا',
@@ -202,14 +306,86 @@ class LanguageProvider with ChangeNotifier {
       'China': 'الصين',
       'United States': 'الولايات المتحدة',
       'Japan': 'اليابان',
+      'Mount Everest': 'جبل إفرست',
+      'K2': 'كي2',
+      'Mont Blanc': 'مون بلان',
+      'Kilimanjaro': 'كليمنجارو',
+      'The Nile': 'النيل',
+      'The Amazon': 'الأمازون',
+      'The Mississippi': 'المسيسيبي',
+      'The Yangtze': 'اليانغتسي',
+      'Paris': 'باريس',
+      'Rome': 'روما',
+      'New York': 'نيويورك',
+      'Tokyo': 'طوكيو',
+      'Cairo': 'القاهرة',
+      'Sydney': 'سيدني',
+      'Moscow': 'موسكو',
+      'Brazil': 'البرازيل',
+      'Germany': 'ألمانيا',
+      'Italy': 'إيطاليا',
+      'Spain': 'إسبانيا',
+      'United Kingdom': 'المملكة المتحدة',
+      'Australia': 'أستراليا',
+      'India': 'الهند',
+      'Mexico': 'المكسيك',
+      'Egypt': 'مصر',
+      'South Africa': 'جنوب أفريقيا',
+      'Argentina': 'الأرجنتين',
+      
+      // Personnes
+      'Leonardo da Vinci': 'ليوناردو دا فينشي',
+      'Pablo Picasso': 'بابلو بيكاسو',
+      'Vincent van Gogh': 'فينسنت فان جوخ',
+      'Michelangelo': 'مايكل أنجلو',
+      'Victor Hugo': 'فيكتور هوجو',
+      'Alexandre Dumas': 'ألكسندر دوما',
+      'Marie Curie': 'ماري كوري',
+      'Albert Einstein': 'ألبرت أينشتاين',
+      'William Shakespeare': 'ويليام شكسبير',
+      'Isaac Newton': 'إسحاق نيوتن',
+      'Charles Darwin': 'تشارلز داروين',
+      'Galileo Galilei': 'غاليليو غاليلي',
+      'Napoleon Bonaparte': 'نابليون بونابرت',
+      'Julius Caesar': 'يوليوس قيصر',
+      'Alexander the Great': 'الإسكندر الأكبر',
+      'Mozart': 'موتسارت',
+      'Beethoven': 'بيتهوفن',
+      'Bach': 'باخ',
       
       // Éléments et sciences
       'Mercury': 'عطارد',
       'Venus': 'الزهرة',
       'Earth': 'الأرض',
       'Mars': 'المريخ',
+      'Jupiter': 'المشتري',
+      'Saturn': 'زحل',
+      'Uranus': 'أورانوس',
+      'Neptune': 'نبتون',
+      'Pluto': 'بلوتو',
+      'H2O': 'H2O',
+      'CO2': 'CO2',
+      'O2': 'O2',
       'Hydrogen': 'هيدروجين',
       'Oxygen': 'أكسجين',
+      'Carbon': 'كربون',
+      'Iron': 'حديد',
+      'Gold': 'ذهب',
+      'Silver': 'فضة',
+      'Copper': 'نحاس',
+      'Helium': 'هيليوم',
+      'Nitrogen': 'نيتروجين',
+      'Calcium': 'كالسيوم',
+      'Sodium': 'صوديوم',
+      'Potassium': 'بوتاسيوم',
+      'Zinc': 'زنك',
+      'Magnesium': 'مغنيسيوم',
+      'Physics': 'فيزياء',
+      'Chemistry': 'كيمياء',
+      'Biology': 'علم الأحياء',
+      'Astronomy': 'علم الفلك',
+      'Mathematics': 'رياضيات',
+      'Geology': 'جيولوجيا',
       
       // Catégories
       'Geography': 'الجغرافيا',
@@ -224,8 +400,20 @@ class LanguageProvider with ChangeNotifier {
       'Economics': 'الاقتصاد',
       'Entertainment: Books': 'الترفيه: الكتب',
       'Entertainment: Film': 'الترفيه: الأفلام',
+      'Entertainment: Music': 'الترفيه: الموسيقى',
+      'Entertainment: Television': 'الترفيه: التلفزيون',
+      'Entertainment: Video Games': 'الترفيه: ألعاب الفيديو',
+      'Entertainment: Board Games': 'الترفيه: ألعاب اللوح',
       'Science & Nature': 'العلوم والطبيعة',
+      'Science: Computers': 'العلوم: الكمبيوتر',
+      'Science: Mathematics': 'العلوم: الرياضيات',
+      'Mythology': 'الميثولوجيا',
+      'Sports': 'الرياضة',
       'General Knowledge': 'المعرفة العامة',
+      'Vehicles': 'المركبات',
+      'Animals': 'الحيوانات',
+      'Politics': 'السياسة',
+      'Celebrities': 'المشاهير',
       
       // Difficultés
       'easy': 'سهل',
@@ -246,6 +434,17 @@ class LanguageProvider with ChangeNotifier {
       'Reload': 'إعادة تحميل',
       'Problem displaying question': 'مشكلة في عرض السؤال',
       'Recharger': 'إعادة تحميل',
+      'back': 'رجوع',
+      'next': 'التالي',
+      'question': 'سؤال',
+      'time_left': 'الوقت المتبقي',
+      'seconds': 'ثوان',
+      'reload': 'إعادة تحميل',
+      'problem_displaying_question': 'مشكلة في عرض السؤال',
+      'quit_quiz': 'الخروج من الاختبار',
+      'quit_confirmation': 'هل أنت متأكد أنك تريد الخروج؟ سيتم فقدان تقدمك.',
+      'cancel': 'إلغاء',
+      'quit': 'خروج',
     }
   };
 
@@ -290,35 +489,108 @@ class LanguageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Méthode simplifiée pour traduire du texte
-  String translateText(String text, String sourceLanguage) {
+  // Méthode pour traduire du texte
+  Future<String> translateTextAsync(String text, String sourceLanguage) async {
     // Si la langue actuelle est l'anglais ou la même que la source, retourner le texte original
     if (_currentLanguage == 'en' || _currentLanguage == sourceLanguage) {
       return text;
     }
     
-    // Chercher dans le dictionnaire de traductions
+    // Nettoyage du texte avant traduction
+    String cleanedText = text
+      .replaceAll('&amp;', '&')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&quot;', '"')
+      .replaceAll('&#039;', "'")
+      .trim();
+    
+    // Si ML Kit est activé et initialisé, essayer d'abord la traduction ML Kit
+    if (_mlKitEnabled && _isInitialized) {
+      try {
+        final translatedText = await _translationService.translateText(
+          cleanedText, 
+          sourceLanguage, 
+          _currentLanguage
+        );
+        
+        if (translatedText != cleanedText) {
+          return translatedText;
+        }
+      } catch (e) {
+        print('ML Kit translation error: $e');
+        // En cas d'erreur, continuer avec la traduction basée sur le dictionnaire
+      }
+    }
+    
+    // Traduction basée sur le dictionnaire comme fallback
     final languageTranslations = _translations[_currentLanguage];
     if (languageTranslations != null) {
       // Chercher des correspondances exactes
-      if (languageTranslations.containsKey(text)) {
-        return languageTranslations[text]!;
+      if (languageTranslations.containsKey(cleanedText)) {
+        return languageTranslations[cleanedText]!;
       }
       
       // Chercher des correspondances pour des phrases complètes
-      String translatedText = text;
+      String translatedText = cleanedText;
       
       // Trier les clés par longueur (des plus longues aux plus courtes) pour éviter les remplacements partiels
       final sortedKeys = languageTranslations.keys.toList()
         ..sort((a, b) => b.length.compareTo(a.length));
       
       for (final key in sortedKeys) {
-        if (text.contains(key)) {
+        if (cleanedText.contains(key)) {
           translatedText = translatedText.replaceAll(key, languageTranslations[key]!);
         }
       }
       
-      if (translatedText != text) {
+      if (translatedText != cleanedText) {
+        return translatedText;
+      }
+    }
+    
+    // Si aucune traduction n'est trouvée, retourner le texte original
+    return text;
+  }
+  
+  // Méthode synchrone pour la compatibilité avec le code existant
+  String translateText(String text, String sourceLanguage) {
+    // Si la langue actuelle est l'anglais ou la même que la source, retourner le texte original
+    if (_currentLanguage == 'en' || _currentLanguage == sourceLanguage) {
+      return text;
+    }
+    
+    // Nettoyage du texte avant traduction
+    String cleanedText = text
+      .replaceAll('&amp;', '&')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&quot;', '"')
+      .replaceAll('&#039;', "'")
+      .trim();
+    
+    // Pour la méthode synchrone, utiliser uniquement le dictionnaire
+    final languageTranslations = _translations[_currentLanguage];
+    if (languageTranslations != null) {
+      // Chercher des correspondances exactes
+      if (languageTranslations.containsKey(cleanedText)) {
+        return languageTranslations[cleanedText]!;
+      }
+      
+      // Chercher des correspondances pour des phrases complètes
+      String translatedText = cleanedText;
+      
+      // Trier les clés par longueur (des plus longues aux plus courtes) pour éviter les remplacements partiels
+      final sortedKeys = languageTranslations.keys.toList()
+        ..sort((a, b) => b.length.compareTo(a.length));
+      
+      for (final key in sortedKeys) {
+        if (cleanedText.contains(key)) {
+          translatedText = translatedText.replaceAll(key, languageTranslations[key]!);
+        }
+      }
+      
+      if (translatedText != cleanedText) {
         return translatedText;
       }
     }

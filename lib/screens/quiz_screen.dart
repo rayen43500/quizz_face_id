@@ -19,13 +19,11 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateMixin {
   final HtmlUnescape _htmlUnescape = HtmlUnescape();
   String? _selectedAnswer;
-  bool _isAnswered = false;
   late AnimationController _colorAnimationController;
   late Animation<Color?> _colorAnimation;
   
   // Pour stocker les traductions avec un cache plus efficace
   final HashMap<String, String> _translatedTexts = HashMap<String, String>();
-  bool _isTranslating = false;
   
   @override
   void initState() {
@@ -56,7 +54,63 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     return _htmlUnescape.convert(text);
   }
   
-  // Méthode améliorée pour traduire un texte
+  // Méthode améliorée pour traduire un texte avec ML Kit (asynchrone)
+  Future<String> _translateTextAsync(String text, LanguageProvider languageProvider) async {
+    if (text.isEmpty) {
+      return text;
+    }
+    
+    // Vérifier si le texte est déjà traduit dans notre cache
+    if (_translatedTexts.containsKey(text)) {
+      return _translatedTexts[text]!;
+    }
+    
+    // Essayer de traduire avec le système de localisation
+    String translated = context.tr(text);
+    
+    // Si pas de traduction dans le système de localisation, utiliser ML Kit via LanguageProvider
+    if (translated == text) {
+      try {
+        // Afficher un indicateur de chargement pour les textes longs
+        if (text.length > 50 && mounted) {
+          setState(() {
+            // Mise à jour de l'interface pour indiquer une traduction en cours
+          });
+        }
+        
+        translated = await languageProvider.translateTextAsync(text, 'en');
+        
+        // Si la traduction a échoué (retourne le texte original), essayer une approche alternative
+        if (translated == text) {
+          // Diviser le texte en phrases plus courtes pour une meilleure traduction
+          final sentences = text.split(RegExp(r'(?<=[.!?])\s+'));
+          if (sentences.length > 1) {
+            final translatedSentences = <String>[];
+            
+            for (final sentence in sentences) {
+              final translatedSentence = await languageProvider.translateTextAsync(sentence, 'en');
+              translatedSentences.add(translatedSentence);
+            }
+            
+            translated = translatedSentences.join(' ');
+          }
+        }
+      } catch (e) {
+        debugPrint('Erreur de traduction ML Kit: $e');
+        // En cas d'erreur, utiliser la méthode synchrone comme fallback
+        translated = languageProvider.translateText(text, 'en');
+      }
+    }
+    
+    // Mettre en cache la traduction
+    if (translated != text) {
+      _translatedTexts[text] = translated;
+    }
+    
+    return translated;
+  }
+  
+  // Méthode synchrone pour les cas où on ne peut pas attendre
   String _translateText(String text, LanguageProvider languageProvider) {
     if (text.isEmpty) {
       return text;
@@ -116,10 +170,37 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
           );
         }
 
+        // Réinitialiser la sélection si on passe à une nouvelle question
+        if (!quizProvider.hasAnswered && _selectedAnswer != null) {
+          _selectedAnswer = null;
+        }
+
         // Décoder la question immédiatement
         final decodedQuestion = _decodeHtml(currentQuestion.question);
         final cleanedQuestion = _prepareForTranslation(decodedQuestion);
         final bool questionIsEmpty = cleanedQuestion.trim().isEmpty;
+        
+        // Pré-traduire la question et les réponses avec ML Kit
+        if (!_translatedTexts.containsKey(cleanedQuestion) && !questionIsEmpty) {
+          // Lancer la traduction en arrière-plan
+          _translateTextAsync(cleanedQuestion, languageProvider).then((_) {
+            // Forcer une mise à jour de l'UI une fois la traduction terminée
+            if (mounted) setState(() {});
+          });
+        }
+        
+        // Pré-traduire les réponses
+        for (final answer in currentQuestion.allAnswers) {
+          final decodedAnswer = _decodeHtml(answer);
+          final cleanedAnswer = _prepareForTranslation(decodedAnswer);
+          if (!_translatedTexts.containsKey(cleanedAnswer)) {
+            // Lancer la traduction en arrière-plan
+            _translateTextAsync(cleanedAnswer, languageProvider).then((_) {
+              // Forcer une mise à jour de l'UI une fois la traduction terminée
+              if (mounted) setState(() {});
+            });
+          }
+        }
 
         return Scaffold(
           appBar: AppBar(
@@ -279,10 +360,8 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                       child: Text(context.tr('back')),
                     ),
                     ElevatedButton(
-                      onPressed: _isAnswered
+                      onPressed: quizProvider.hasAnswered
                           ? () {
-                              _selectedAnswer = null;
-                              _isAnswered = false;
                               quizProvider.goToNextQuestion();
                             }
                           : null,
@@ -310,47 +389,80 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     // Déterminer la couleur du bouton
     Color buttonColor = Colors.white;
     Color textColor = Colors.black;
+    Color borderColor = isSelected ? Colors.blue : Colors.grey.shade300;
+    double borderWidth = 2.0;
     
-    if (_isAnswered) {
+    if (quizProvider.hasAnswered) {
       if (isSelected) {
-        buttonColor = isCorrect ? Colors.green : Colors.red;
+        buttonColor = isCorrect ? Colors.green.shade500 : Colors.red.shade500;
         textColor = Colors.white;
+        borderColor = isCorrect ? Colors.green.shade700 : Colors.red.shade700;
+        borderWidth = 3.0;
       } else if (isCorrect) {
-        buttonColor = Colors.green.withOpacity(0.3);
+        buttonColor = Colors.green.shade100;
+        borderColor = Colors.green.shade500;
+        borderWidth = 2.5;
       }
     } else if (isSelected) {
       buttonColor = Colors.blue.shade100;
+      borderColor = Colors.blue.shade500;
+    }
+    
+    // Icône à afficher pour indiquer si la réponse est correcte ou incorrecte
+    Widget? leadingIcon;
+    if (quizProvider.hasAnswered) {
+      if (isSelected) {
+        leadingIcon = Icon(
+          isCorrect ? Icons.check_circle : Icons.cancel,
+          color: isCorrect ? Colors.green.shade100 : Colors.red.shade100,
+        );
+      } else if (isCorrect) {
+        leadingIcon = Icon(
+          Icons.check_circle_outline,
+          color: Colors.green.shade700,
+        );
+      }
     }
     
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
         foregroundColor: textColor,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
           side: BorderSide(
-            color: isSelected ? Colors.blue : Colors.grey.shade300,
-            width: 2,
+            color: borderColor,
+            width: borderWidth,
           ),
         ),
+        elevation: isSelected ? 4 : 2,
       ),
-      onPressed: _isAnswered
+      onPressed: quizProvider.hasAnswered
           ? null
           : () {
               setState(() {
                 _selectedAnswer = originalAnswer;
-                _isAnswered = true;
               });
               
               quizProvider.answerQuestion(isCorrect);
             },
-      child: Text(
-        displayText,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: isCorrect && _isAnswered ? FontWeight.bold : FontWeight.normal,
-        ),
+      child: Row(
+        children: [
+          if (leadingIcon != null) ...[
+            leadingIcon,
+            const SizedBox(width: 8),
+          ],
+          Expanded(
+            child: Text(
+              displayText,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: (isCorrect && quizProvider.hasAnswered) || isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

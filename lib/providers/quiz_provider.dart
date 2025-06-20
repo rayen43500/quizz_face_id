@@ -41,6 +41,10 @@ class QuizProvider with ChangeNotifier {
   int _selectedAmount = 10;
   int get selectedAmount => _selectedAmount;
   
+  // Pour suivre si l'utilisateur a répondu à la question actuelle
+  bool _hasAnswered = false;
+  bool get hasAnswered => _hasAnswered;
+  
   QuizQuestion? get currentQuestion {
     if (_questions.isEmpty || _currentQuestionIndex >= _questions.length) {
       return null;
@@ -131,6 +135,7 @@ class QuizProvider with ChangeNotifier {
         _currentQuestionIndex = 0;
         _correctAnswers = 0;
         _quizCompleted = false;
+        _hasAnswered = false;
         startTimer();
       }
     } catch (e) {
@@ -145,38 +150,66 @@ class QuizProvider with ChangeNotifier {
   List<QuizQuestion> _preprocessQuestions(List<QuizQuestion> questions) {
     return questions.map((question) {
       // Supprimer les caractères spéciaux HTML qui pourraient rester
-      String cleanQuestion = question.question
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>')
-          .replaceAll('&quot;', '"')
-          .replaceAll('&#039;', "'");
-          
-      String cleanCorrectAnswer = question.correctAnswer
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>')
-          .replaceAll('&quot;', '"')
-          .replaceAll('&#039;', "'");
-          
-      List<String> cleanIncorrectAnswers = question.incorrectAnswers.map((answer) {
-        return answer
-          .replaceAll('&amp;', '&')
-          .replaceAll('&lt;', '<')
-          .replaceAll('&gt;', '>')
-          .replaceAll('&quot;', '"')
-          .replaceAll('&#039;', "'");
-      }).toList();
+      String cleanQuestion = _cleanHtmlText(question.question);
+      String cleanCorrectAnswer = _cleanHtmlText(question.correctAnswer);
+      List<String> cleanIncorrectAnswers = question.incorrectAnswers.map(_cleanHtmlText).toList();
+      
+      // Normaliser la catégorie et la difficulté pour la traduction
+      String normalizedCategory = _normalizeText(question.category);
+      String normalizedDifficulty = _normalizeText(question.difficulty);
       
       return QuizQuestion(
         question: cleanQuestion,
         correctAnswer: cleanCorrectAnswer,
         incorrectAnswers: cleanIncorrectAnswers,
-        category: question.category,
-        difficulty: question.difficulty,
+        category: normalizedCategory,
+        difficulty: normalizedDifficulty,
         type: question.type,
       );
     }).toList();
+  }
+  
+  // Nettoyer le texte HTML pour la traduction
+  String _cleanHtmlText(String text) {
+    if (text.isEmpty) return text;
+    
+    // Remplacer les entités HTML courantes
+    String cleaned = text
+      .replaceAll('&amp;', '&')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&quot;', '"')
+      .replaceAll('&#039;', "'")
+      .replaceAll('&eacute;', 'é')
+      .replaceAll('&egrave;', 'è')
+      .replaceAll('&agrave;', 'à')
+      .replaceAll('&ccedil;', 'ç')
+      .replaceAll('&ouml;', 'ö')
+      .replaceAll('&uuml;', 'ü')
+      .replaceAll('&auml;', 'ä')
+      .replaceAll('&ntilde;', 'ñ')
+      .replaceAll('&nbsp;', ' ');
+    
+    // Supprimer les balises HTML
+    cleaned = cleaned.replaceAll(RegExp(r'<[^>]*>'), '');
+    
+    // Normaliser les espaces multiples
+    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
+    
+    return cleaned;
+  }
+  
+  // Normaliser le texte pour améliorer la traduction
+  String _normalizeText(String text) {
+    if (text.isEmpty) return text;
+    
+    // Convertir la première lettre en majuscule et le reste en minuscule
+    String normalized = text.trim();
+    if (normalized.isNotEmpty) {
+      normalized = normalized[0].toUpperCase() + normalized.substring(1).toLowerCase();
+    }
+    
+    return normalized;
   }
   
   // Réinitialiser et redémarrer le quiz
@@ -191,6 +224,7 @@ class QuizProvider with ChangeNotifier {
     if (_currentQuestionIndex > 0) {
       _timer?.cancel();
       _currentQuestionIndex--;
+      _hasAnswered = false;
       startTimer();
       notifyListeners();
     }
@@ -201,6 +235,7 @@ class QuizProvider with ChangeNotifier {
     if (_currentQuestionIndex < _questions.length - 1) {
       _timer?.cancel();
       _currentQuestionIndex++;
+      _hasAnswered = false;
       startTimer();
       notifyListeners();
     }
@@ -224,6 +259,9 @@ class QuizProvider with ChangeNotifier {
   void answerQuestion(bool isCorrect) {
     if (currentQuestion == null) return;
     
+    _hasAnswered = true;
+    notifyListeners();
+    
     if (isCorrect) {
       _correctAnswers++;
       _audioService.playCorrectSound();
@@ -231,8 +269,8 @@ class QuizProvider with ChangeNotifier {
       _audioService.playIncorrectSound();
     }
     
-    // Delay to show feedback before moving to next question
-    Future.delayed(const Duration(milliseconds: 1000), () {
+    // Délai pour montrer le feedback puis passer à la question suivante
+    Future.delayed(const Duration(milliseconds: 800), () {
       nextQuestion();
     });
   }
@@ -242,6 +280,7 @@ class QuizProvider with ChangeNotifier {
     
     if (_currentQuestionIndex < _questions.length - 1) {
       _currentQuestionIndex++;
+      _hasAnswered = false;
       startTimer();
       notifyListeners();
     } else {
@@ -292,6 +331,7 @@ class QuizProvider with ChangeNotifier {
     _currentQuestionIndex = 0;
     _correctAnswers = 0;
     _quizCompleted = false;
+    _hasAnswered = false;
     _error = '';
     notifyListeners();
   }
