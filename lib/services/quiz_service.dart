@@ -13,46 +13,204 @@ class QuizService {
     String difficulty = '',
     String type = '',
   }) async {
-    String url = '$baseUrl?amount=$amount';
-    
-    if (categoryId != null) {
-      url += '&category=$categoryId';
-    }
-    
-    if (difficulty.isNotEmpty) {
-      url += '&difficulty=${difficulty.toLowerCase()}';
-    }
-    
-    if (type.isNotEmpty) {
-      url += '&type=$type';
-    }
-    
-    final response = await http.get(Uri.parse(url));
-    
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    try {
+      String url = '$baseUrl?amount=$amount';
       
-      if (data['response_code'] == 0) {
-        final List<dynamic> results = data['results'];
-        return results.map((json) => QuizQuestion.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load questions: ${_getErrorMessage(data['response_code'])}');
+      if (categoryId != null) {
+        url += '&category=$categoryId';
       }
-    } else {
-      throw Exception('Failed to load questions');
+      
+      if (difficulty.isNotEmpty) {
+        url += '&difficulty=${difficulty.toLowerCase()}';
+      }
+      
+      if (type.isNotEmpty) {
+        url += '&type=$type';
+      }
+      
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
+        if (data['response_code'] == 0) {
+          final List<dynamic> results = data['results'];
+          return results.map((json) => QuizQuestion.fromJson(json)).toList();
+        } else {
+          print('API error: ${_getErrorMessage(data['response_code'])}');
+          return _getLocalQuestions(amount, difficulty);
+        }
+      } else {
+        print('HTTP error: ${response.statusCode}');
+        return _getLocalQuestions(amount, difficulty);
+      }
+    } catch (e) {
+      print('Exception in fetchQuizQuestions: $e');
+      return _getLocalQuestions(amount, difficulty);
     }
   }
 
+  List<QuizQuestion> _getLocalQuestions(int amount, String difficulty) {
+    // Questions locales en cas d'échec de l'API
+    final List<QuizQuestion> localQuestions = [
+      QuizQuestion(
+        question: "Quelle est la capitale de la France?",
+        correctAnswer: "Paris",
+        incorrectAnswers: ["Londres", "Berlin", "Madrid"],
+        category: "Géographie",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Qui a peint la Joconde?",
+        correctAnswer: "Léonard de Vinci",
+        incorrectAnswers: ["Pablo Picasso", "Vincent van Gogh", "Michel-Ange"],
+        category: "Art",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quelle est la planète la plus proche du soleil?",
+        correctAnswer: "Mercure",
+        incorrectAnswers: ["Vénus", "Terre", "Mars"],
+        category: "Science",
+        difficulty: difficulty.isEmpty ? "easy" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quel est le plus grand océan du monde?",
+        correctAnswer: "Océan Pacifique",
+        incorrectAnswers: ["Océan Atlantique", "Océan Indien", "Océan Arctique"],
+        category: "Géographie",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Qui a écrit 'Les Misérables'?",
+        correctAnswer: "Victor Hugo",
+        incorrectAnswers: ["Alexandre Dumas", "Émile Zola", "Gustave Flaubert"],
+        category: "Littérature",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "En quelle année a commencé la Première Guerre mondiale?",
+        correctAnswer: "1914",
+        incorrectAnswers: ["1918", "1939", "1945"],
+        category: "Histoire",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quel est le plus grand pays du monde par superficie?",
+        correctAnswer: "Russie",
+        incorrectAnswers: ["Canada", "Chine", "États-Unis"],
+        category: "Géographie",
+        difficulty: difficulty.isEmpty ? "easy" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quelle est la formule chimique de l'eau?",
+        correctAnswer: "H2O",
+        incorrectAnswers: ["CO2", "O2", "NaCl"],
+        category: "Science",
+        difficulty: difficulty.isEmpty ? "easy" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Qui a découvert la pénicilline?",
+        correctAnswer: "Alexander Fleming",
+        incorrectAnswers: ["Louis Pasteur", "Marie Curie", "Albert Einstein"],
+        category: "Science",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quel est le plus long fleuve du monde?",
+        correctAnswer: "Le Nil",
+        incorrectAnswers: ["L'Amazone", "Le Mississippi", "Le Yangtsé"],
+        category: "Géographie",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quelle est la monnaie du Japon?",
+        correctAnswer: "Yen",
+        incorrectAnswers: ["Won", "Yuan", "Dollar"],
+        category: "Économie",
+        difficulty: difficulty.isEmpty ? "easy" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Qui est l'auteur de 'Harry Potter'?",
+        correctAnswer: "J.K. Rowling",
+        incorrectAnswers: ["Stephen King", "George R.R. Martin", "Tolkien"],
+        category: "Littérature",
+        difficulty: difficulty.isEmpty ? "easy" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quel est l'élément chimique le plus abondant dans l'univers?",
+        correctAnswer: "Hydrogène",
+        incorrectAnswers: ["Oxygène", "Carbone", "Fer"],
+        category: "Science",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Quelle est la plus haute montagne du monde?",
+        correctAnswer: "Mont Everest",
+        incorrectAnswers: ["K2", "Mont Blanc", "Kilimandjaro"],
+        category: "Géographie",
+        difficulty: difficulty.isEmpty ? "easy" : difficulty,
+        type: "multiple",
+      ),
+      QuizQuestion(
+        question: "Qui a peint 'La Nuit étoilée'?",
+        correctAnswer: "Vincent van Gogh",
+        incorrectAnswers: ["Pablo Picasso", "Claude Monet", "Salvador Dalí"],
+        category: "Art",
+        difficulty: difficulty.isEmpty ? "medium" : difficulty,
+        type: "multiple",
+      ),
+    ];
+
+    // Limiter au nombre demandé
+    return localQuestions.take(amount).toList();
+  }
+
   Future<List<QuizCategory>> fetchCategories() async {
-    final response = await http.get(Uri.parse(categoriesUrl));
-    
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final List<dynamic> categories = data['trivia_categories'];
-      return categories.map((json) => QuizCategory.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load categories');
+    try {
+      final response = await http.get(Uri.parse(categoriesUrl)).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> categories = data['trivia_categories'];
+        return categories.map((json) => QuizCategory.fromJson(json)).toList();
+      } else {
+        print('HTTP error fetching categories: ${response.statusCode}');
+        return _getLocalCategories();
+      }
+    } catch (e) {
+      print('Exception in fetchCategories: $e');
+      return _getLocalCategories();
     }
+  }
+
+  List<QuizCategory> _getLocalCategories() {
+    // Catégories locales en cas d'échec de l'API
+    return [
+      QuizCategory(id: 1, name: "Géographie"),
+      QuizCategory(id: 2, name: "Histoire"),
+      QuizCategory(id: 3, name: "Science"),
+      QuizCategory(id: 4, name: "Art"),
+      QuizCategory(id: 5, name: "Littérature"),
+      QuizCategory(id: 6, name: "Sport"),
+      QuizCategory(id: 7, name: "Cinéma"),
+      QuizCategory(id: 8, name: "Musique"),
+      QuizCategory(id: 9, name: "Technologie"),
+      QuizCategory(id: 10, name: "Économie"),
+    ];
   }
 
   String _getErrorMessage(int responseCode) {
