@@ -43,6 +43,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     _colorAnimationController.dispose();
     super.dispose();
   }
+
+  // Méthode pour décoder et traduire le texte
+  Future<String> _processText(String text, LanguageProvider languageProvider) async {
+    // D'abord décoder les entités HTML
+    final decodedText = _htmlUnescape.convert(text);
+    // Ensuite traduire le texte
+    return await languageProvider.translateText(decodedText, 'en');
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -69,8 +77,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(
-              'Question ${quizProvider.currentQuestionIndex + 1}/${quizProvider.questions.length}',
+            title: FutureBuilder<String>(
+              future: _processText(
+                'Question ${quizProvider.currentQuestionIndex + 1}/${quizProvider.questions.length}',
+                languageProvider
+              ),
+              builder: (context, snapshot) {
+                return Text(snapshot.data ?? 'Question ${quizProvider.currentQuestionIndex + 1}/${quizProvider.questions.length}');
+              },
             ),
             leading: IconButton(
               icon: const Icon(Icons.close),
@@ -93,29 +107,50 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: 5),
-                Text(
-                  'Time left: ${quizProvider.timeLeft} seconds',
-                  style: TextStyle(
-                    color: quizProvider.timeLeft > 5 ? Colors.blue : Colors.red,
-                    fontWeight: FontWeight.bold,
+                FutureBuilder<String>(
+                  future: _processText(
+                    'Time left: ${quizProvider.timeLeft} seconds',
+                    languageProvider
                   ),
+                  builder: (context, snapshot) {
+                    return Text(
+                      snapshot.data ?? 'Time left: ${quizProvider.timeLeft} seconds',
+                      style: TextStyle(
+                        color: quizProvider.timeLeft > 5 ? Colors.blue : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
                 
                 // Category and difficulty
                 Row(
                   children: [
-                    Chip(
-                      label: Text(currentQuestion.category),
-                      backgroundColor: Colors.blue.shade100,
+                    FutureBuilder<String>(
+                      future: _processText(currentQuestion.category, languageProvider),
+                      builder: (context, snapshot) {
+                        return Chip(
+                          label: Text(snapshot.data ?? currentQuestion.category),
+                          backgroundColor: Colors.blue.shade100,
+                        );
+                      },
                     ),
                     const SizedBox(width: 10),
-                    Chip(
-                      label: Text(
-                        currentQuestion.difficulty[0].toUpperCase() +
+                    FutureBuilder<String>(
+                      future: _processText(
+                        currentQuestion.difficulty[0].toUpperCase() + 
                         currentQuestion.difficulty.substring(1),
+                        languageProvider
                       ),
-                      backgroundColor: _getDifficultyColor(currentQuestion.difficulty),
+                      builder: (context, snapshot) {
+                        return Chip(
+                          label: Text(snapshot.data ?? 
+                            (currentQuestion.difficulty[0].toUpperCase() + 
+                            currentQuestion.difficulty.substring(1))),
+                          backgroundColor: _getDifficultyColor(currentQuestion.difficulty),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -140,13 +175,15 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                     color: (_colorAnimation.value ?? Colors.blue).withOpacity(0.1),
                   ),
                   child: FutureBuilder<String>(
-                    future: languageProvider.translateText(
-                      _htmlUnescape.convert(currentQuestion.question),
-                      'en', // Assuming questions are in English
-                    ),
+                    future: _processText(currentQuestion.question, languageProvider),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Text('Translating question...');
+                        return FutureBuilder<String>(
+                          future: languageProvider.translateText('Translating question...', 'en'),
+                          builder: (context, textSnapshot) {
+                            return Text(textSnapshot.data ?? 'Translating question...');
+                          },
+                        );
                       }
                       
                       return Text(
@@ -172,12 +209,9 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                       final isSelected = answer == _selectedAnswer;
                       
                       return FutureBuilder<String>(
-                        future: languageProvider.translateText(
-                          _htmlUnescape.convert(answer),
-                          'en', // Assuming answers are in English
-                        ),
+                        future: _processText(answer, languageProvider),
                         builder: (context, snapshot) {
-                          final translatedAnswer = snapshot.data ?? _htmlUnescape.convert(answer);
+                          final processedAnswer = snapshot.data ?? _htmlUnescape.convert(answer);
                           
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
@@ -189,7 +223,7 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                                 vertical: 8,
                               ),
                               title: Text(
-                                translatedAnswer,
+                                processedAnswer,
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: isSelected ? Colors.white : null,
@@ -251,32 +285,28 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     }
   }
 
-  Future<void> _showQuitDialog(BuildContext context, QuizProvider quizProvider) async {
-    return showDialog<void>(
+  void _showQuitDialog(BuildContext context, QuizProvider quizProvider) {
+    showDialog(
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Quit Quiz?'),
-          content: const Text('Are you sure you want to quit? Your progress will be lost.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Quit'),
-              onPressed: () {
-                quizProvider.resetQuiz();
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: const Text('Quit Quiz?'),
+        content: const Text('Are you sure you want to quit? Your progress will be lost.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              Navigator.pop(context); // Go back to previous screen
+              quizProvider.resetQuiz();
+            },
+            child: const Text('Quit'),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+          ),
+        ],
+      ),
     );
   }
 } 

@@ -23,7 +23,7 @@ class QuizQuestion {
     return allAnswers;
   }
 
-  List<String> get allAnswers => _allAnswers;
+  List<String> get allAnswers => List<String>.from(_allAnswers);
 
   factory QuizQuestion.fromJson(Map<String, dynamic> json) {
     return QuizQuestion(
