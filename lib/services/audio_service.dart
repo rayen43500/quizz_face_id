@@ -34,7 +34,7 @@ class AudioService {
     try {
       await _audioPlayer.stop();
       await _audioPlayer.setVolume(_volume);
-      await _audioPlayer.play(AssetSource('sounds/correct.mp3'));
+      await _audioPlayer.play(AssetSource('sounds/success.mp3'));
     } catch (e) {
       print('Error playing correct sound: $e');
     }
@@ -70,7 +70,7 @@ class AudioService {
     try {
       await _audioPlayer.stop();
       await _audioPlayer.setVolume(_volume);
-      await _audioPlayer.play(AssetSource('sounds/failure.mp3'));
+      await _audioPlayer.play(AssetSource('sounds/incorrect.mp3'));
     } catch (e) {
       print('Error playing failure sound: $e');
     }
@@ -82,7 +82,7 @@ class AudioService {
     try {
       await _audioPlayer.stop();
       await _audioPlayer.setVolume(_volume * 0.7); // Volume légèrement plus bas pour le clic
-      await _audioPlayer.play(AssetSource('sounds/click.mp3'));
+      await _audioPlayer.play(AssetSource('sounds/success.mp3'));
     } catch (e) {
       print('Error playing click sound: $e');
     }
