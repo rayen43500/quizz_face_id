@@ -7,6 +7,7 @@ import '../services/app_localizations.dart';
 import '../models/quiz_model.dart';
 import 'result_screen.dart';
 import 'dart:math' as math;
+import 'dart:collection';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({Key? key}) : super(key: key);
@@ -22,8 +23,8 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
   late AnimationController _colorAnimationController;
   late Animation<Color?> _colorAnimation;
   
-  // Pour stocker les traductions
-  Map<String, String> _translatedTexts = {};
+  // Pour stocker les traductions avec un cache plus efficace
+  final HashMap<String, String> _translatedTexts = HashMap<String, String>();
   bool _isTranslating = false;
   
   @override
@@ -55,39 +56,41 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     return _htmlUnescape.convert(text);
   }
   
-  // Méthode pour traduire un texte avec cache
-  Future<String> _getTranslatedText(String text, LanguageProvider languageProvider) async {
-    // Si déjà traduit, retourner depuis le cache
+  // Méthode améliorée pour traduire un texte
+  String _translateText(String text, LanguageProvider languageProvider) {
+    if (text.isEmpty) {
+      return text;
+    }
+    
+    // Vérifier si le texte est déjà traduit dans notre cache
     if (_translatedTexts.containsKey(text)) {
       return _translatedTexts[text]!;
     }
     
-    // Sinon, traduire et mettre en cache
-    final translated = await languageProvider.translateText(text, 'en');
+    // Essayer de traduire avec le système de localisation
+    String translated = context.tr(text);
+    
+    // Si pas de traduction dans le système de localisation, utiliser le LanguageProvider
+    if (translated == text) {
+      translated = languageProvider.translateText(text, 'en');
+    }
+    
+    // Mettre en cache la traduction
     _translatedTexts[text] = translated;
+    
     return translated;
   }
   
-  // Traduire tous les textes nécessaires pour la question actuelle
-  Future<void> _translateCurrentQuestion(QuizQuestion question, LanguageProvider languageProvider) async {
-    if (languageProvider.currentLanguage == 'en') return;
+  // Méthode pour nettoyer et préparer le texte avant traduction
+  String _prepareForTranslation(String text) {
+    // Enlever les caractères spéciaux HTML qui pourraient rester
+    String cleaned = text.replaceAll('&amp;', '&')
+                          .replaceAll('&lt;', '<')
+                          .replaceAll('&gt;', '>')
+                          .replaceAll('&quot;', '"')
+                          .replaceAll('&#039;', "'");
     
-    setState(() {
-      _isTranslating = true;
-    });
-    
-    // Traduire la question, la catégorie et toutes les réponses
-    await _getTranslatedText(question.question, languageProvider);
-    await _getTranslatedText(question.category, languageProvider);
-    await _getTranslatedText(question.difficulty, languageProvider);
-    
-    for (final answer in question.allAnswers) {
-      await _getTranslatedText(answer, languageProvider);
-    }
-    
-    setState(() {
-      _isTranslating = false;
-    });
+    return cleaned.trim();
   }
   
   @override
@@ -113,14 +116,10 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
           );
         }
 
-        // Déclencher la traduction quand une nouvelle question est chargée
-        if (languageProvider.currentLanguage != 'en' && !_isTranslating && _translatedTexts.isEmpty) {
-          _translateCurrentQuestion(currentQuestion, languageProvider);
-        }
-
         // Décoder la question immédiatement
         final decodedQuestion = _decodeHtml(currentQuestion.question);
-        final bool questionIsEmpty = decodedQuestion.trim().isEmpty;
+        final cleanedQuestion = _prepareForTranslation(decodedQuestion);
+        final bool questionIsEmpty = cleanedQuestion.trim().isEmpty;
 
         return Scaffold(
           appBar: AppBar(
@@ -179,25 +178,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                 // Category and difficulty
                 Row(
                   children: [
-                    FutureBuilder<String>(
-                      future: _getTranslatedText(currentQuestion.category, languageProvider),
-                      builder: (context, snapshot) {
-                        return Chip(
-                          label: Text(snapshot.data ?? currentQuestion.category),
-                          backgroundColor: Colors.blue.shade100,
-                        );
-                      }
+                    Chip(
+                      label: Text(_translateText(currentQuestion.category, languageProvider)),
+                      backgroundColor: Colors.blue.shade100,
                     ),
                     const SizedBox(width: 10),
-                    FutureBuilder<String>(
-                      future: _getTranslatedText(currentQuestion.difficulty, languageProvider),
-                      builder: (context, snapshot) {
-                        final difficulty = snapshot.data ?? currentQuestion.difficulty;
-                        return Chip(
-                          label: Text(context.tr(currentQuestion.difficulty)),
-                          backgroundColor: _getDifficultyColor(currentQuestion.difficulty),
-                        );
-                      }
+                    Chip(
+                      label: Text(_translateText(currentQuestion.difficulty, languageProvider)),
+                      backgroundColor: _getDifficultyColor(currentQuestion.difficulty),
                     ),
                   ],
                 ),
@@ -246,32 +234,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                             ],
                           ),
                         )
-                      : _isTranslating
-                          ? Center(
-                              child: Column(
-                                children: [
-                                  const CircularProgressIndicator(),
-                                  const SizedBox(height: 10),
-                                  Text(context.tr('translating_question')),
-                                ],
-                              ),
-                            )
-                          : FutureBuilder<String>(
-                              future: _getTranslatedText(decodedQuestion, languageProvider),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return const Center(child: CircularProgressIndicator());
-                                }
-                                return Text(
-                                  snapshot.data ?? decodedQuestion,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                );
-                              },
-                            ),
+                      : Text(
+                          _translateText(cleanedQuestion, languageProvider),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                 ),
                 const SizedBox(height: 30),
                 
@@ -282,18 +252,16 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
                     itemBuilder: (context, index) {
                       final answer = currentQuestion.allAnswers[index];
                       final decodedAnswer = _decodeHtml(answer);
+                      final cleanedAnswer = _prepareForTranslation(decodedAnswer);
+                      final translatedAnswer = _translateText(cleanedAnswer, languageProvider);
                       
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
-                        child: FutureBuilder<String>(
-                          future: _getTranslatedText(decodedAnswer, languageProvider),
-                          builder: (context, snapshot) {
-                            return _buildAnswerButton(
-                              snapshot.data ?? decodedAnswer,
-                              quizProvider,
-                              currentQuestion,
-                            );
-                          },
+                        child: _buildAnswerButton(
+                          translatedAnswer,
+                          quizProvider,
+                          currentQuestion,
+                          decodedAnswer,
                         ),
                       );
                     },
@@ -330,9 +298,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildAnswerButton(String answer, QuizProvider quizProvider, QuizQuestion question) {
-    final bool isCorrect = answer == _decodeHtml(question.correctAnswer);
-    final bool isSelected = answer == _selectedAnswer;
+  Widget _buildAnswerButton(
+    String displayText,
+    QuizProvider quizProvider,
+    QuizQuestion question,
+    String originalAnswer,
+  ) {
+    final bool isCorrect = originalAnswer == _decodeHtml(question.correctAnswer);
+    final bool isSelected = originalAnswer == _selectedAnswer;
     
     // Déterminer la couleur du bouton
     Color buttonColor = Colors.white;
@@ -366,14 +339,14 @@ class _QuizScreenState extends State<QuizScreen> with SingleTickerProviderStateM
           ? null
           : () {
               setState(() {
-                _selectedAnswer = answer;
+                _selectedAnswer = originalAnswer;
                 _isAnswered = true;
               });
               
-              quizProvider.answerQuestion(answer == _decodeHtml(question.correctAnswer));
+              quizProvider.answerQuestion(isCorrect);
             },
       child: Text(
-        answer,
+        displayText,
         style: TextStyle(
           fontSize: 16,
           fontWeight: isCorrect && _isAnswered ? FontWeight.bold : FontWeight.normal,

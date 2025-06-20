@@ -111,40 +111,72 @@ class QuizProvider with ChangeNotifier {
   }
   
   Future<void> startQuiz() async {
+    _isLoading = true;
+    notifyListeners();
+
     try {
-      _isLoading = true;
-      _error = '';
-      _questions = [];
-      _currentQuestionIndex = 0;
-      _correctAnswers = 0;
-      _quizCompleted = false;
-      notifyListeners();
-      
-      int? categoryId;
-      if (_selectedCategory.isNotEmpty) {
-        final category = _categories.firstWhere(
+      final questions = await _quizService.fetchQuizQuestions(
+        amount: _selectedAmount,
+        categoryId: _selectedCategory.isEmpty ? null : _categories.firstWhere(
           (cat) => cat.name == _selectedCategory,
           orElse: () => QuizCategory(id: 0, name: ''),
-        );
-        if (category.id > 0) {
-          categoryId = category.id;
-        }
-      }
-      
-      _questions = await _quizService.fetchQuizQuestions(
-        amount: _selectedAmount,
-        categoryId: categoryId,
-        difficulty: _selectedDifficulty,
+        ).id,
+        difficulty: _selectedDifficulty == 'Any Difficulty' ? '' : _selectedDifficulty.toLowerCase(),
       );
       
-      _isLoading = false;
-      startTimer();
-      notifyListeners();
+      // Prétraiter les questions pour faciliter la traduction
+      _questions = _preprocessQuestions(questions);
+      
+      if (_questions.isNotEmpty) {
+        _currentQuestionIndex = 0;
+        _correctAnswers = 0;
+        _quizCompleted = false;
+        startTimer();
+      }
     } catch (e) {
-      _error = 'Failed to load questions: $e';
+      print('Error starting quiz: $e');
+    } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+  
+  // Prétraiter les questions pour faciliter la traduction
+  List<QuizQuestion> _preprocessQuestions(List<QuizQuestion> questions) {
+    return questions.map((question) {
+      // Supprimer les caractères spéciaux HTML qui pourraient rester
+      String cleanQuestion = question.question
+          .replaceAll('&amp;', '&')
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>')
+          .replaceAll('&quot;', '"')
+          .replaceAll('&#039;', "'");
+          
+      String cleanCorrectAnswer = question.correctAnswer
+          .replaceAll('&amp;', '&')
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>')
+          .replaceAll('&quot;', '"')
+          .replaceAll('&#039;', "'");
+          
+      List<String> cleanIncorrectAnswers = question.incorrectAnswers.map((answer) {
+        return answer
+          .replaceAll('&amp;', '&')
+          .replaceAll('&lt;', '<')
+          .replaceAll('&gt;', '>')
+          .replaceAll('&quot;', '"')
+          .replaceAll('&#039;', "'");
+      }).toList();
+      
+      return QuizQuestion(
+        question: cleanQuestion,
+        correctAnswer: cleanCorrectAnswer,
+        incorrectAnswers: cleanIncorrectAnswers,
+        category: question.category,
+        difficulty: question.difficulty,
+        type: question.type,
+      );
+    }).toList();
   }
   
   // Réinitialiser et redémarrer le quiz

@@ -104,7 +104,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                         ...quizProvider.categories.map((category) {
                           return DropdownMenuItem<String>(
                             value: category.name,
-                            child: Text(category.name),
+                            child: Text(context.tr(category.name)),
                           );
                         }).toList(),
                       ],

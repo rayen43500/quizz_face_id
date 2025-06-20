@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/translation_service.dart';
 import '../services/storage_service.dart';
+import '../services/app_localizations.dart';
 
 class LanguageProvider with ChangeNotifier {
   String _currentLanguage = 'en';
@@ -33,6 +34,16 @@ class LanguageProvider with ChangeNotifier {
       'Who is the author of': 'Qui est l\'auteur de',
       'What is the most abundant': 'Quel est le plus abondant',
       'What is the highest': 'Quelle est la plus haute',
+      
+      // Réponses communes
+      'True': 'Vrai',
+      'False': 'Faux',
+      'Yes': 'Oui',
+      'No': 'Non',
+      'All of the above': 'Toutes les réponses ci-dessus',
+      'None of the above': 'Aucune des réponses ci-dessus',
+      'I don\'t know': 'Je ne sais pas',
+      'Maybe': 'Peut-être',
       
       // Pays et lieux
       'France': 'France',
@@ -168,6 +179,16 @@ class LanguageProvider with ChangeNotifier {
       'What is the currency of': 'ما هي عملة',
       'Who is the author of': 'من هو مؤلف',
       
+      // Réponses communes
+      'True': 'صحيح',
+      'False': 'خطأ',
+      'Yes': 'نعم',
+      'No': 'لا',
+      'All of the above': 'كل ما سبق',
+      'None of the above': 'لا شيء مما سبق',
+      'I don\'t know': 'لا أعرف',
+      'Maybe': 'ربما',
+      
       // Pays et lieux
       'France': 'فرنسا',
       'London': 'لندن',
@@ -269,57 +290,41 @@ class LanguageProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Méthode améliorée pour traduire du texte
-  Future<String> translateText(String text, String sourceLanguage) async {
+  // Méthode simplifiée pour traduire du texte
+  String translateText(String text, String sourceLanguage) {
     // Si la langue actuelle est l'anglais ou la même que la source, retourner le texte original
     if (_currentLanguage == 'en' || _currentLanguage == sourceLanguage) {
       return text;
     }
     
-    // First try using ML Kit for automatic translation
-    if (_mlKitEnabled && _isInitialized) {
-      try {
-        final translatedText = await _translationService.translateText(
-          text, 
-          sourceLanguage, 
-          _currentLanguage
-        );
-        
-        if (translatedText != text) {
-          return translatedText;
-        }
-      } catch (e) {
-        print('ML Kit translation error: $e - falling back to dictionary');
-        // Continue to dictionary-based translation if ML Kit fails
-      }
-    }
-    
-    // Fallback to dictionary-based translation
-    // Vérifier si nous avons des traductions pour cette langue
+    // Chercher dans le dictionnaire de traductions
     final languageTranslations = _translations[_currentLanguage];
-    if (languageTranslations == null) {
-      return text; // Retourner le texte original si pas de traductions disponibles
-    }
-    
-    // Chercher des correspondances exactes
-    if (languageTranslations.containsKey(text)) {
-      return languageTranslations[text]!;
-    }
-    
-    // Chercher des correspondances pour des phrases complètes
-    String translatedText = text;
-    
-    // Trier les clés par longueur (des plus longues aux plus courtes) pour éviter les remplacements partiels
-    final sortedKeys = languageTranslations.keys.toList()
-      ..sort((a, b) => b.length.compareTo(a.length));
-    
-    for (final key in sortedKeys) {
-      if (text.contains(key)) {
-        translatedText = translatedText.replaceAll(key, languageTranslations[key]!);
+    if (languageTranslations != null) {
+      // Chercher des correspondances exactes
+      if (languageTranslations.containsKey(text)) {
+        return languageTranslations[text]!;
+      }
+      
+      // Chercher des correspondances pour des phrases complètes
+      String translatedText = text;
+      
+      // Trier les clés par longueur (des plus longues aux plus courtes) pour éviter les remplacements partiels
+      final sortedKeys = languageTranslations.keys.toList()
+        ..sort((a, b) => b.length.compareTo(a.length));
+      
+      for (final key in sortedKeys) {
+        if (text.contains(key)) {
+          translatedText = translatedText.replaceAll(key, languageTranslations[key]!);
+        }
+      }
+      
+      if (translatedText != text) {
+        return translatedText;
       }
     }
     
-    return translatedText;
+    // Si aucune traduction n'est trouvée, retourner le texte original
+    return text;
   }
 
   Locale get locale {
