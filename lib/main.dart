@@ -14,6 +14,7 @@ import 'screens/about_screen.dart';
 import 'services/notification_service.dart';
 import 'services/audio_service.dart';
 import 'services/face_auth_service.dart';
+import 'services/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
         Locale('ar', ''), // Arabic
       ],
       localizationsDelegates: const [
+        AppLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

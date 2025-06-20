@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/language_provider.dart';
+import '../services/app_localizations.dart';
 import 'quiz_setup_screen.dart';
 import 'about_screen.dart';
 import 'settings_screen.dart';
@@ -18,7 +19,7 @@ class HomeScreen extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz App'),
+        title: Text(context.tr('app_title')),
         actions: [
           IconButton(
             icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
@@ -66,24 +67,24 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 30),
-              const Text(
-                'Welcome to Quiz App',
-                style: TextStyle(
+              Text(
+                context.tr('welcome'),
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              const Text(
+              Text(
                 'Test your knowledge with questions from various categories',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
               _buildMenuButton(
                 context,
-                'Start Quiz',
+                context.tr('start_quiz'),
                 Icons.play_arrow,
                 Colors.green,
                 () {
@@ -93,7 +94,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 15),
               _buildMenuButton(
                 context,
-                'Leaderboard',
+                context.tr('leaderboard'),
                 Icons.leaderboard,
                 Colors.orange,
                 () {
@@ -103,7 +104,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 15),
               _buildMenuButton(
                 context,
-                'Settings',
+                context.tr('settings'),
                 Icons.settings,
                 Colors.purple,
                 () {
@@ -113,7 +114,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 15),
               _buildMenuButton(
                 context,
-                'About',
+                context.tr('about'),
                 Icons.info,
                 Colors.blue,
                 () {

@@ -51,6 +51,9 @@ class QuizProvider with ChangeNotifier {
   bool _quizCompleted = false;
   bool get quizCompleted => _quizCompleted;
   
+  // Pour suivre la langue actuelle du quiz
+  String _quizLanguage = 'en';
+  
   QuizProvider() {
     loadCategories();
   }
@@ -84,6 +87,27 @@ class QuizProvider with ChangeNotifier {
   void setAmount(int amount) {
     _selectedAmount = amount;
     notifyListeners();
+  }
+  
+  // Méthode pour vérifier si la langue a changé et réinitialiser le quiz si nécessaire
+  void checkLanguageChange(String currentLanguage) {
+    if (_quizLanguage != currentLanguage && _questions.isNotEmpty) {
+      // La langue a changé pendant un quiz en cours
+      _quizLanguage = currentLanguage;
+      // Réinitialiser la question actuelle pour forcer une nouvelle traduction
+      if (_currentQuestionIndex > 0) {
+        int savedIndex = _currentQuestionIndex;
+        _currentQuestionIndex = 0;
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _currentQuestionIndex = savedIndex;
+          notifyListeners();
+        });
+      } else {
+        notifyListeners();
+      }
+    } else {
+      _quizLanguage = currentLanguage;
+    }
   }
   
   Future<void> startQuiz() async {
@@ -123,6 +147,33 @@ class QuizProvider with ChangeNotifier {
     }
   }
   
+  // Réinitialiser et redémarrer le quiz
+  Future<void> resetAndStartQuiz() async {
+    _timer?.cancel();
+    resetQuiz();
+    await startQuiz();
+  }
+  
+  // Aller à la question précédente
+  void goToPreviousQuestion() {
+    if (_currentQuestionIndex > 0) {
+      _timer?.cancel();
+      _currentQuestionIndex--;
+      startTimer();
+      notifyListeners();
+    }
+  }
+  
+  // Aller à la question suivante
+  void goToNextQuestion() {
+    if (_currentQuestionIndex < _questions.length - 1) {
+      _timer?.cancel();
+      _currentQuestionIndex++;
+      startTimer();
+      notifyListeners();
+    }
+  }
+  
   void startTimer() {
     _timeLeft = 15; // Reset timer
     _timer?.cancel();
@@ -138,10 +189,8 @@ class QuizProvider with ChangeNotifier {
     });
   }
   
-  void answerQuestion(String selectedAnswer) {
+  void answerQuestion(bool isCorrect) {
     if (currentQuestion == null) return;
-    
-    final isCorrect = selectedAnswer == currentQuestion!.correctAnswer;
     
     if (isCorrect) {
       _correctAnswers++;

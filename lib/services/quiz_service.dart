@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/quiz_model.dart';
 import 'dart:async';
+import 'package:html_unescape/html_unescape.dart';
 
 class QuizService {
   static const String baseUrl = 'https://opentdb.com/api.php';
   static const String categoriesUrl = 'https://opentdb.com/api_category.php';
+  final HtmlUnescape _htmlUnescape = HtmlUnescape();
 
   Future<List<QuizQuestion>> fetchQuizQuestions({
     required int amount,
@@ -14,7 +16,7 @@ class QuizService {
     String type = '',
   }) async {
     try {
-      String url = '$baseUrl?amount=$amount';
+      String url = '$baseUrl?amount=$amount&encode=base64';
       
       if (categoryId != null) {
         url += '&category=$categoryId';
@@ -35,7 +37,21 @@ class QuizService {
         
         if (data['response_code'] == 0) {
           final List<dynamic> results = data['results'];
-          return results.map((json) => QuizQuestion.fromJson(json)).toList();
+          
+          return results.map((json) {
+            Map<String, dynamic> decodedJson = {
+              'question': _decodeBase64(json['question']),
+              'correct_answer': _decodeBase64(json['correct_answer']),
+              'category': _decodeBase64(json['category']),
+              'difficulty': _decodeBase64(json['difficulty']),
+              'type': _decodeBase64(json['type']),
+              'incorrect_answers': (json['incorrect_answers'] as List)
+                  .map((answer) => _decodeBase64(answer))
+                  .toList(),
+            };
+            
+            return QuizQuestion.fromJson(decodedJson);
+          }).toList();
         } else {
           print('API error: ${_getErrorMessage(data['response_code'])}');
           return _getLocalQuestions(amount, difficulty);
@@ -47,6 +63,16 @@ class QuizService {
     } catch (e) {
       print('Exception in fetchQuizQuestions: $e');
       return _getLocalQuestions(amount, difficulty);
+    }
+  }
+
+  String _decodeBase64(String base64String) {
+    try {
+      final decoded = utf8.decode(base64Decode(base64String));
+      return _htmlUnescape.convert(decoded);
+    } catch (e) {
+      print('Error decoding base64: $e');
+      return base64String;
     }
   }
 

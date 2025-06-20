@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/quiz_provider.dart';
+import '../services/app_localizations.dart';
 import 'quiz_screen.dart';
 
 class QuizSetupScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz Setup'),
+        title: Text(context.tr('quiz_setup')),
       ),
       body: Consumer<QuizProvider>(
         builder: (context, quizProvider, child) {
@@ -45,7 +46,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Error: ${quizProvider.error}',
+                    '${context.tr('error')}: ${quizProvider.error}',
                     style: const TextStyle(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
@@ -54,7 +55,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                     onPressed: () {
                       quizProvider.loadCategories();
                     },
-                    child: const Text('Retry'),
+                    child: Text(context.tr('retry')),
                   ),
                 ],
               ),
@@ -66,9 +67,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Select Quiz Options',
-                  style: TextStyle(
+                Text(
+                  context.tr('quiz_setup'),
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -76,9 +77,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 const SizedBox(height: 30),
                 
                 // Category selection
-                const Text(
-                  'Category:',
-                  style: TextStyle(
+                Text(
+                  '${context.tr('select_category')}:',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -93,12 +94,12 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedCategory.isEmpty ? null : _selectedCategory,
-                      hint: const Text('  Select a category'),
+                      hint: Text('  ${context.tr('select_category')}'),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: '',
-                          child: Text('Any Category'),
+                          child: Text(context.tr('any_category')),
                         ),
                         ...quizProvider.categories.map((category) {
                           return DropdownMenuItem<String>(
@@ -119,9 +120,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 const SizedBox(height: 20),
                 
                 // Difficulty selection
-                const Text(
-                  'Difficulty:',
-                  style: TextStyle(
+                Text(
+                  '${context.tr('select_difficulty')}:',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -136,18 +137,18 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedDifficulty.isEmpty ? null : _selectedDifficulty,
-                      hint: const Text('  Select difficulty'),
+                      hint: Text('  ${context.tr('select_difficulty')}'),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       items: [
-                        const DropdownMenuItem<String>(
+                        DropdownMenuItem<String>(
                           value: '',
-                          child: Text('Any Difficulty'),
+                          child: Text(context.tr('any_difficulty')),
                         ),
                         ..._difficulties.map((difficulty) {
                           return DropdownMenuItem<String>(
                             value: difficulty,
                             child: Text(
-                              difficulty[0].toUpperCase() + difficulty.substring(1),
+                              context.tr(difficulty),
                             ),
                           );
                         }).toList(),
@@ -164,9 +165,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                 const SizedBox(height: 20),
                 
                 // Number of questions selection
-                const Text(
-                  'Number of Questions:',
-                  style: TextStyle(
+                Text(
+                  '${context.tr('number_of_questions')}:',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -185,7 +186,7 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                       items: _questionAmounts.map((amount) {
                         return DropdownMenuItem<int>(
                           value: amount,
-                          child: Text('$amount Questions'),
+                          child: Text('$amount ${context.tr('question')}'),
                         );
                       }).toList(),
                       onChanged: (int? value) {
@@ -224,9 +225,9 @@ class _QuizSetupScreenState extends State<QuizSetupScreen> {
                         );
                       }
                     },
-                    child: const Text(
-                      'Start Quiz',
-                      style: TextStyle(fontSize: 18),
+                    child: Text(
+                      context.tr('start_quiz'),
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ),
                 ),

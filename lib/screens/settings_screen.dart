@@ -5,7 +5,10 @@ import '../providers/language_provider.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import '../services/audio_service.dart';
+import '../services/translation_service.dart';
+import '../services/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../providers/quiz_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -18,9 +21,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final StorageService _storageService = StorageService();
   final NotificationService _notificationService = NotificationService();
   final AudioService _audioService = AudioService();
+  final TranslationService _translationService = TranslationService();
   
   bool _soundEnabled = true;
   bool _notificationsEnabled = true;
+  bool _mlKitEnabled = true;
+  bool _isLoadingModels = false;
   
   @override
   void initState() {
@@ -33,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _soundEnabled = settings['sound'] ?? true;
       _notificationsEnabled = settings['notifications'] ?? true;
+      _mlKitEnabled = settings['ml_kit_enabled'] ?? true;
     });
   }
   
@@ -43,16 +50,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(context.tr('settings')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Appearance',
-              style: TextStyle(
+            Text(
+              context.tr('appearance'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -62,8 +69,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   SwitchListTile(
-                    title: const Text('Dark Mode'),
-                    subtitle: const Text('Enable dark theme'),
+                    title: Text(context.tr('dark_mode')),
+                    subtitle: Text(context.tr('enable_dark_theme')),
                     value: themeProvider.isDarkMode,
                     onChanged: (value) {
                       themeProvider.toggleTheme();
@@ -71,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const Divider(),
                   ListTile(
-                    title: const Text('Language'),
+                    title: Text(context.tr('language')),
                     subtitle: Text(_getLanguageName(languageProvider.currentLanguage)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
@@ -81,10 +88,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
+            
+            // ML Kit Translation Section
             const SizedBox(height: 30),
-            const Text(
-              'Sound & Notifications',
-              style: TextStyle(
+            Text(
+              context.tr('translation'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -94,8 +103,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   SwitchListTile(
-                    title: const Text('Sound Effects'),
-                    subtitle: const Text('Enable sound effects during quiz'),
+                    title: Text(context.tr('ml_kit_translation')),
+                    subtitle: Text(context.tr('use_ml_kit')),
+                    value: _mlKitEnabled,
+                    onChanged: (value) async {
+                      setState(() {
+                        _mlKitEnabled = value;
+                      });
+                      await _storageService.saveSetting('ml_kit_enabled', value);
+                      
+                      if (value) {
+                        _initializeModels();
+                      }
+                    },
+                  ),
+                  if (_isLoadingModels)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 8),
+                            Text(context.tr('downloading_model')),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ListTile(
+                    title: Text(context.tr('download_models')),
+                    subtitle: Text(context.tr('manage_models')),
+                    trailing: const Icon(Icons.download),
+                    enabled: _mlKitEnabled,
+                    onTap: _mlKitEnabled ? () {
+                      _showModelManagementDialog(context);
+                    } : null,
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 30),
+            Text(
+              context.tr('sound_notifications'),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Card(
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(context.tr('sound_effects')),
+                    subtitle: Text(context.tr('enable_sound')),
                     value: _soundEnabled,
                     onChanged: (value) async {
                       setState(() {
@@ -107,8 +169,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const Divider(),
                   SwitchListTile(
-                    title: const Text('Notifications'),
-                    subtitle: const Text('Receive quiz reminders'),
+                    title: Text(context.tr('notifications')),
+                    subtitle: Text(context.tr('receive_reminders')),
                     value: _notificationsEnabled,
                     onChanged: (value) async {
                       setState(() {
@@ -133,9 +195,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 30),
-            const Text(
-              'Data',
-              style: TextStyle(
+            Text(
+              context.tr('data'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -145,18 +207,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   ListTile(
-                    title: const Text('Clear Quiz History'),
-                    subtitle: const Text('Delete all saved quiz results'),
-                    trailing: const Icon(Icons.delete, color: Colors.red),
+                    title: Text(context.tr('clear_history')),
+                    subtitle: Text(context.tr('delete_results')),
+                    trailing: Icon(Icons.delete, color: Colors.red),
                     onTap: () {
                       _showClearDataDialog(context);
                     },
                   ),
                   const Divider(),
                   ListTile(
-                    title: const Text('Sign Out'),
-                    subtitle: const Text('Log out from the application'),
-                    trailing: const Icon(Icons.logout, color: Colors.red),
+                    title: Text(context.tr('sign_out')),
+                    subtitle: Text(context.tr('logout_message')),
+                    trailing: Icon(Icons.logout, color: Colors.red),
                     onTap: () {
                       _showSignOutDialog(context);
                     },
@@ -165,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            const Center(
+            Center(
               child: Text(
                 'Quiz App v1.0.0',
                 style: TextStyle(
@@ -176,6 +238,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _initializeModels() async {
+    setState(() {
+      _isLoadingModels = true;
+    });
+    
+    try {
+      await _translationService.initialize();
+    } catch (e) {
+      print('Error initializing translation models: $e');
+    } finally {
+      setState(() {
+        _isLoadingModels = false;
+      });
+    }
+  }
+
+  Future<void> _showModelManagementDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(context.tr('download_models')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildModelOption(context, 'en', 'English'),
+                _buildModelOption(context, 'fr', 'Français'),
+                _buildModelOption(context, 'ar', 'العربية'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(context.tr('close')),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildModelOption(BuildContext context, String code, String name) {
+    return ListTile(
+      title: Text(name),
+      trailing: ElevatedButton(
+        child: Text(context.tr('download')),
+        onPressed: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${context.tr('downloading_model')} $name'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          
+          try {
+            await _translationService.downloadModelIfNeeded('en', code);
+            await _translationService.downloadModelIfNeeded(code, 'en');
+            
+            if (!context.mounted) return;
+            
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$name ${context.tr('model_downloaded')}'),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          } catch (e) {
+            if (!context.mounted) return;
+            
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${context.tr('error_downloading')}: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
       ),
     );
   }
@@ -197,7 +344,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Select Language'),
+          title: Text(context.tr('language')),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -210,7 +357,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(context.tr('cancel')),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -227,6 +374,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String code,
     String name,
   ) {
+    final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+    
     return ListTile(
       title: Text(name),
       leading: Radio<String>(
@@ -235,12 +384,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onChanged: (String? value) {
           if (value != null) {
             languageProvider.setLanguage(value);
+            quizProvider.checkLanguageChange(value);
             Navigator.of(context).pop();
           }
         },
       ),
       onTap: () {
         languageProvider.setLanguage(code);
+        quizProvider.checkLanguageChange(code);
         Navigator.of(context).pop();
       },
     );
@@ -251,28 +402,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Clear Quiz History'),
-          content: const Text(
-            'Are you sure you want to delete all saved quiz results? This action cannot be undone.',
-          ),
+          title: Text(context.tr('clear_history')),
+          content: Text(context.tr('clear_confirmation')),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(context.tr('cancel')),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Clear'),
+              child: Text(context.tr('clear')),
               onPressed: () async {
                 await _storageService.clearQuizResults();
                 if (!mounted) return;
                 
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Quiz history cleared'),
+                  SnackBar(
+                    content: Text(context.tr('clear_history')),
                   ),
                 );
               },
@@ -288,19 +437,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Sign Out'),
-          content: const Text(
-            'Are you sure you want to sign out? You will need to authenticate again to use the app.',
-          ),
+          title: Text(context.tr('sign_out')),
+          content: Text(context.tr('sign_out_confirmation')),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(context.tr('cancel')),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Sign Out'),
+              child: Text(context.tr('sign_out')),
               onPressed: () async {
                 // Clear authentication state
                 final prefs = await SharedPreferences.getInstance();

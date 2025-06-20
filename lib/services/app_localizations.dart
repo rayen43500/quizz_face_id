@@ -1,0 +1,365 @@
+import 'package:flutter/material.dart';
+
+class AppLocalizations {
+  final String locale;
+
+  AppLocalizations(this.locale);
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static final Map<String, Map<String, String>> _localizedValues = {
+    'en': {
+      // Common UI elements
+      'app_title': 'Quiz App',
+      'settings': 'Settings',
+      'home': 'Home',
+      'profile': 'Profile',
+      'leaderboard': 'Leaderboard',
+      'about': 'About',
+      'sign_out': 'Sign Out',
+      'sign_in': 'Sign In',
+      'register': 'Register',
+      'cancel': 'Cancel',
+      'save': 'Save',
+      'delete': 'Delete',
+      'edit': 'Edit',
+      'close': 'Close',
+      'continue': 'Continue',
+      'back': 'Back',
+      'next': 'Next',
+      'finish': 'Finish',
+      'submit': 'Submit',
+      'search': 'Search',
+      'filter': 'Filter',
+      'sort': 'Sort',
+      'confirm': 'Confirm',
+      'retry': 'Retry',
+      'reload': 'Reload',
+      'refresh': 'Refresh',
+      'download': 'Download',
+      'upload': 'Upload',
+      'share': 'Share',
+      
+      // Quiz related
+      'start_quiz': 'Start Quiz',
+      'quiz_setup': 'Quiz Setup',
+      'select_category': 'Select Category',
+      'select_difficulty': 'Select Difficulty',
+      'number_of_questions': 'Number of Questions',
+      'time_per_question': 'Time per Question',
+      'any_category': 'Any Category',
+      'any_difficulty': 'Any Difficulty',
+      'easy': 'Easy',
+      'medium': 'Medium',
+      'hard': 'Hard',
+      'question': 'Question',
+      'score': 'Score',
+      'correct': 'Correct',
+      'incorrect': 'Incorrect',
+      'time_left': 'Time Left',
+      'seconds': 'seconds',
+      'quiz_results': 'Quiz Results',
+      'your_score': 'Your Score',
+      'play_again': 'Play Again',
+      'return_to_home': 'Return to Home',
+      'quit_quiz': 'Quit Quiz',
+      'quit_confirmation': 'Are you sure you want to quit? Your progress will be lost.',
+      'quit': 'Quit',
+      
+      // Settings
+      'appearance': 'Appearance',
+      'dark_mode': 'Dark Mode',
+      'enable_dark_theme': 'Enable dark theme',
+      'language': 'Language',
+      'translation': 'Translation',
+      'ml_kit_translation': 'ML Kit Translation',
+      'use_ml_kit': 'Use ML Kit for automatic translation of quiz questions',
+      'download_models': 'Download Translation Models',
+      'manage_models': 'Manage language models for offline translation',
+      'downloading_model': 'Downloading translation model...',
+      'model_downloaded': 'Translation model downloaded',
+      'error_downloading': 'Error downloading model',
+      'sound_notifications': 'Sound & Notifications',
+      'sound_effects': 'Sound Effects',
+      'enable_sound': 'Enable sound effects during quiz',
+      'notifications': 'Notifications',
+      'receive_reminders': 'Receive quiz reminders',
+      'data': 'Data',
+      'clear_history': 'Clear Quiz History',
+      'delete_results': 'Delete all saved quiz results',
+      'logout_message': 'Log out from the application',
+      'clear_confirmation': 'Are you sure you want to delete all saved quiz results? This action cannot be undone.',
+      'clear': 'Clear',
+      'sign_out_confirmation': 'Are you sure you want to sign out? You will need to authenticate again to use the app.',
+      
+      // Authentication
+      'email': 'Email',
+      'password': 'Password',
+      'confirm_password': 'Confirm Password',
+      'forgot_password': 'Forgot Password?',
+      'login': 'Login',
+      'signup': 'Sign Up',
+      'welcome': 'Welcome to Quiz App',
+      'login_to_continue': 'Login to continue',
+      'dont_have_account': 'Don\'t have an account?',
+      'already_have_account': 'Already have an account?',
+      
+      // Error messages
+      'error': 'Error',
+      'something_went_wrong': 'Something went wrong',
+      'connection_error': 'Connection error',
+      'try_again': 'Please try again',
+      'invalid_credentials': 'Invalid email or password',
+      'field_required': 'This field is required',
+      'passwords_dont_match': 'Passwords don\'t match',
+      'invalid_email': 'Invalid email address',
+    },
+    'fr': {
+      // Éléments d'interface communs
+      'app_title': 'Quiz App',
+      'settings': 'Paramètres',
+      'home': 'Accueil',
+      'profile': 'Profil',
+      'leaderboard': 'Classement',
+      'about': 'À propos',
+      'sign_out': 'Déconnexion',
+      'sign_in': 'Connexion',
+      'register': 'S\'inscrire',
+      'cancel': 'Annuler',
+      'save': 'Enregistrer',
+      'delete': 'Supprimer',
+      'edit': 'Modifier',
+      'close': 'Fermer',
+      'continue': 'Continuer',
+      'back': 'Retour',
+      'next': 'Suivant',
+      'finish': 'Terminer',
+      'submit': 'Soumettre',
+      'search': 'Rechercher',
+      'filter': 'Filtrer',
+      'sort': 'Trier',
+      'confirm': 'Confirmer',
+      'retry': 'Réessayer',
+      'reload': 'Recharger',
+      'refresh': 'Actualiser',
+      'download': 'Télécharger',
+      'upload': 'Uploader',
+      'share': 'Partager',
+      
+      // Quiz
+      'start_quiz': 'Commencer le Quiz',
+      'quiz_setup': 'Configuration du Quiz',
+      'select_category': 'Sélectionner une catégorie',
+      'select_difficulty': 'Sélectionner une difficulté',
+      'number_of_questions': 'Nombre de questions',
+      'time_per_question': 'Temps par question',
+      'any_category': 'Toute catégorie',
+      'any_difficulty': 'Toute difficulté',
+      'easy': 'Facile',
+      'medium': 'Moyen',
+      'hard': 'Difficile',
+      'question': 'Question',
+      'score': 'Score',
+      'correct': 'Correct',
+      'incorrect': 'Incorrect',
+      'time_left': 'Temps restant',
+      'seconds': 'secondes',
+      'quiz_results': 'Résultats du Quiz',
+      'your_score': 'Votre score',
+      'play_again': 'Rejouer',
+      'return_to_home': 'Retourner à l\'accueil',
+      'quit_quiz': 'Quitter le Quiz',
+      'quit_confirmation': 'Êtes-vous sûr de vouloir quitter? Votre progression sera perdue.',
+      'quit': 'Quitter',
+      
+      // Paramètres
+      'appearance': 'Apparence',
+      'dark_mode': 'Mode sombre',
+      'enable_dark_theme': 'Activer le thème sombre',
+      'language': 'Langue',
+      'translation': 'Traduction',
+      'ml_kit_translation': 'Traduction ML Kit',
+      'use_ml_kit': 'Utiliser ML Kit pour la traduction automatique des questions',
+      'download_models': 'Télécharger les modèles de traduction',
+      'manage_models': 'Gérer les modèles de langue pour la traduction hors ligne',
+      'downloading_model': 'Téléchargement du modèle de traduction...',
+      'model_downloaded': 'Modèle de traduction téléchargé',
+      'error_downloading': 'Erreur lors du téléchargement du modèle',
+      'sound_notifications': 'Son et notifications',
+      'sound_effects': 'Effets sonores',
+      'enable_sound': 'Activer les effets sonores pendant le quiz',
+      'notifications': 'Notifications',
+      'receive_reminders': 'Recevoir des rappels de quiz',
+      'data': 'Données',
+      'clear_history': 'Effacer l\'historique des quiz',
+      'delete_results': 'Supprimer tous les résultats de quiz enregistrés',
+      'logout_message': 'Se déconnecter de l\'application',
+      'clear_confirmation': 'Êtes-vous sûr de vouloir supprimer tous les résultats de quiz enregistrés? Cette action ne peut pas être annulée.',
+      'clear': 'Effacer',
+      'sign_out_confirmation': 'Êtes-vous sûr de vouloir vous déconnecter? Vous devrez vous authentifier à nouveau pour utiliser l\'application.',
+      
+      // Authentification
+      'email': 'Email',
+      'password': 'Mot de passe',
+      'confirm_password': 'Confirmer le mot de passe',
+      'forgot_password': 'Mot de passe oublié?',
+      'login': 'Connexion',
+      'signup': 'S\'inscrire',
+      'welcome': 'Bienvenue sur Quiz App',
+      'login_to_continue': 'Connectez-vous pour continuer',
+      'dont_have_account': 'Vous n\'avez pas de compte?',
+      'already_have_account': 'Vous avez déjà un compte?',
+      
+      // Messages d'erreur
+      'error': 'Erreur',
+      'something_went_wrong': 'Quelque chose s\'est mal passé',
+      'connection_error': 'Erreur de connexion',
+      'try_again': 'Veuillez réessayer',
+      'invalid_credentials': 'Email ou mot de passe invalide',
+      'field_required': 'Ce champ est requis',
+      'passwords_dont_match': 'Les mots de passe ne correspondent pas',
+      'invalid_email': 'Adresse email invalide',
+    },
+    'ar': {
+      // عناصر واجهة المستخدم المشتركة
+      'app_title': 'تطبيق الاختبار',
+      'settings': 'الإعدادات',
+      'home': 'الرئيسية',
+      'profile': 'الملف الشخصي',
+      'leaderboard': 'المتصدرين',
+      'about': 'حول',
+      'sign_out': 'تسجيل الخروج',
+      'sign_in': 'تسجيل الدخول',
+      'register': 'التسجيل',
+      'cancel': 'إلغاء',
+      'save': 'حفظ',
+      'delete': 'حذف',
+      'edit': 'تعديل',
+      'close': 'إغلاق',
+      'continue': 'متابعة',
+      'back': 'رجوع',
+      'next': 'التالي',
+      'finish': 'إنهاء',
+      'submit': 'إرسال',
+      'search': 'بحث',
+      'filter': 'تصفية',
+      'sort': 'ترتيب',
+      'confirm': 'تأكيد',
+      'retry': 'إعادة المحاولة',
+      'reload': 'إعادة تحميل',
+      'refresh': 'تحديث',
+      'download': 'تنزيل',
+      'upload': 'رفع',
+      'share': 'مشاركة',
+      
+      // الاختبار
+      'start_quiz': 'بدء الاختبار',
+      'quiz_setup': 'إعداد الاختبار',
+      'select_category': 'اختر الفئة',
+      'select_difficulty': 'اختر مستوى الصعوبة',
+      'number_of_questions': 'عدد الأسئلة',
+      'time_per_question': 'الوقت لكل سؤال',
+      'any_category': 'أي فئة',
+      'any_difficulty': 'أي مستوى صعوبة',
+      'easy': 'سهل',
+      'medium': 'متوسط',
+      'hard': 'صعب',
+      'question': 'سؤال',
+      'score': 'النتيجة',
+      'correct': 'صحيح',
+      'incorrect': 'خاطئ',
+      'time_left': 'الوقت المتبقي',
+      'seconds': 'ثوان',
+      'quiz_results': 'نتائج الاختبار',
+      'your_score': 'نتيجتك',
+      'play_again': 'العب مرة أخرى',
+      'return_to_home': 'العودة إلى الرئيسية',
+      'quit_quiz': 'الخروج من الاختبار',
+      'quit_confirmation': 'هل أنت متأكد أنك تريد الخروج؟ سيتم فقدان تقدمك.',
+      'quit': 'خروج',
+      
+      // الإعدادات
+      'appearance': 'المظهر',
+      'dark_mode': 'الوضع الداكن',
+      'enable_dark_theme': 'تفعيل المظهر الداكن',
+      'language': 'اللغة',
+      'translation': 'الترجمة',
+      'ml_kit_translation': 'ترجمة ML Kit',
+      'use_ml_kit': 'استخدام ML Kit للترجمة التلقائية للأسئلة',
+      'download_models': 'تنزيل نماذج الترجمة',
+      'manage_models': 'إدارة نماذج اللغة للترجمة دون اتصال',
+      'downloading_model': 'جاري تنزيل نموذج الترجمة...',
+      'model_downloaded': 'تم تنزيل نموذج الترجمة',
+      'error_downloading': 'خطأ في تنزيل النموذج',
+      'sound_notifications': 'الصوت والإشعارات',
+      'sound_effects': 'المؤثرات الصوتية',
+      'enable_sound': 'تمكين المؤثرات الصوتية أثناء الاختبار',
+      'notifications': 'الإشعارات',
+      'receive_reminders': 'تلقي تذكيرات الاختبار',
+      'data': 'البيانات',
+      'clear_history': 'مسح سجل الاختبارات',
+      'delete_results': 'حذف جميع نتائج الاختبارات المحفوظة',
+      'logout_message': 'تسجيل الخروج من التطبيق',
+      'clear_confirmation': 'هل أنت متأكد أنك تريد حذف جميع نتائج الاختبارات المحفوظة؟ لا يمكن التراجع عن هذا الإجراء.',
+      'clear': 'مسح',
+      'sign_out_confirmation': 'هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى المصادقة مرة أخرى لاستخدام التطبيق.',
+      
+      // المصادقة
+      'email': 'البريد الإلكتروني',
+      'password': 'كلمة المرور',
+      'confirm_password': 'تأكيد كلمة المرور',
+      'forgot_password': 'نسيت كلمة المرور؟',
+      'login': 'تسجيل الدخول',
+      'signup': 'التسجيل',
+      'welcome': 'مرحبًا بك في تطبيق الاختبار',
+      'login_to_continue': 'سجل الدخول للمتابعة',
+      'dont_have_account': 'ليس لديك حساب؟',
+      'already_have_account': 'لديك حساب بالفعل؟',
+      
+      // رسائل الخطأ
+      'error': 'خطأ',
+      'something_went_wrong': 'حدث خطأ ما',
+      'connection_error': 'خطأ في الاتصال',
+      'try_again': 'يرجى المحاولة مرة أخرى',
+      'invalid_credentials': 'بريد إلكتروني أو كلمة مرور غير صالحة',
+      'field_required': 'هذا الحقل مطلوب',
+      'passwords_dont_match': 'كلمات المرور غير متطابقة',
+      'invalid_email': 'عنوان البريد الإلكتروني غير صالح',
+    },
+  };
+
+  String translate(String key) {
+    if (_localizedValues[locale] == null) {
+      return key;
+    }
+    
+    return _localizedValues[locale]![key] ?? _localizedValues['en']![key] ?? key;
+  }
+}
+
+class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+  const AppLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) {
+    return ['en', 'fr', 'ar'].contains(locale.languageCode);
+  }
+
+  @override
+  Future<AppLocalizations> load(Locale locale) async {
+    return AppLocalizations(locale.languageCode);
+  }
+
+  @override
+  bool shouldReload(AppLocalizationsDelegate old) => false;
+}
+
+// Extension pour faciliter l'accès aux traductions
+extension AppLocalizationsExtension on BuildContext {
+  AppLocalizations get t => AppLocalizations.of(this);
+  
+  // Méthode simplifiée pour traduire
+  String tr(String key) => AppLocalizations.of(this).translate(key);
+} 
